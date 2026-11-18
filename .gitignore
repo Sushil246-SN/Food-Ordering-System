@@ -1,0 +1,49 @@
+# Spring Boot / Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Keep Spring Boot help documentation
+!HELP.md
+
+# Eclipse
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+.metadata/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+
+# VS Code
+.vscode/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+application-local.properties
+application-secret.properties
+
+# Logs and private keys
+*.log
+*.pem
+*.key
+*.p12
+*.jks
