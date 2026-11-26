@@ -1,23 +1,35 @@
 package com.food.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.food.dto.OrderStatusRequestDTO;
 import com.food.dto.OrderStatusResponseDTO;
 import com.food.entity.FoodOrder;
+import com.food.entity.OrderItem;
 import com.food.entity.OrderStatus;
 import com.food.exception.InvalidOrderStatusException;
 import com.food.exception.OrderNotFoundException;
+import com.food.repository.OrderItemRepository;
 import com.food.repository.OrderRepository;
 
 @Service
 @Transactional
 public class OrderStatusService {
 
-	@Autowired
-	public OrderRepository orderRepository;
+	
+	private final OrderRepository orderRepository;
+	private final  OrderItemRepository orderItemRepository;
+	
+	public OrderStatusService(
+            OrderRepository orderRepository,
+            OrderItemRepository orderItemRepository) {
+
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
+    }
 	
 	public OrderStatusResponseDTO updateOrderStatus(Long orderId, OrderStatusRequestDTO request)
 	{
@@ -31,9 +43,26 @@ public class OrderStatusService {
 			throw new InvalidOrderStatusException("Cannot change order status from "
                     + currentStatus + " to " + newStatus);
 		}
-			order.setStatus(newStatus);
 			
-			return new OrderStatusResponseDTO(order.getId(),order.getStatus());
+		if(newStatus==OrderStatus.CONFIRMED)
+		{
+			List<OrderItem> orderItem=orderItemRepository.findByOrder_IdOrderByIdAsc(orderId);
+			
+			if(orderItem.isEmpty())
+			{
+				throw new InvalidOrderStatusException("Cannot confirm an order without food items");
+			}
+			if(order.getTotalAmount()==null || order.getTotalAmount().signum()<=0)
+			{
+
+                throw new InvalidOrderStatusException(
+                    "Cannot confirm an order with zero total amount");
+			}
+		}
+		
+		order.setStatus(newStatus);
+		 
+		return new OrderStatusResponseDTO(order.getId(),order.getStatus());
 	}
 	
 	private boolean isValidTransition(OrderStatus currentStatus, OrderStatus newStatus)

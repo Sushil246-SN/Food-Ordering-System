@@ -43,6 +43,12 @@ public class PaymentService {
 					
 		}
 		
+		if(order.getStatus()!=OrderStatus.CONFIRMED)
+		{
+			throw new IllegalArgumentException(
+			        "Payment can only be created for confirmed orders");
+		}
+		
 		if(paymentRepository.existsByOrder_Id(orderId))
 		{
 			throw new PaymentAlreadyExistsException("Payment already exists for order id: " + orderId);
@@ -126,10 +132,11 @@ public class PaymentService {
 		{
 			return;
 		}
-		if(order.getCustomer().getEmail().equalsIgnoreCase(email));
+		if(order.getCustomer().getEmail().equalsIgnoreCase(email))
+		{
 		 throw new OrderNotFoundException(
                  "Order not found with ID: " + order.getId());
-		 
+		}
 	}
 	private PaymentResponseDTO convertToResponse(Payment payment)
 	{

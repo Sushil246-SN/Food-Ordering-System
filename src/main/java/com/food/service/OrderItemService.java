@@ -12,8 +12,10 @@ import com.food.entity.Customer;
 import com.food.entity.Food;
 import com.food.entity.FoodOrder;
 import com.food.entity.OrderItem;
+import com.food.entity.OrderStatus;
 import com.food.exception.CustomerNotFoundException;
 import com.food.exception.FoodNotFoundException;
+import com.food.exception.InvalidOrderStatusException;
 import com.food.exception.OrderNotFoundException;
 import com.food.repository.CustomerRepository;
 import com.food.repository.FoodRepository;
@@ -43,6 +45,18 @@ public class OrderItemService {
 					orElseThrow(()->new OrderNotFoundException("Order not found with ID: " + orderId));
 		
 		checkOrderOwnership(order,email,isAdmin);
+		
+		if(request.getQuantity()==null|| request.getQuantity()<=0)
+		{
+			throw new IllegalArgumentException(
+			        "Quantity must be greater than zero");
+		}
+		
+		if(order.getStatus() != OrderStatus.CREATE)
+		{
+			 throw new InvalidOrderStatusException(
+				        "Food items can only be added to an order in CREATE status");
+		}
 		
 		Food food= foodRepository.findById(request.getFoodId())
 								.orElseThrow(()-> new FoodNotFoundException("Food not found with ID: " + request.getFoodId()));
